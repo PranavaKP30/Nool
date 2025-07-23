@@ -10,7 +10,12 @@ This will launch the dashboard in your browser.
 import streamlit as st
 import pandas as pd
 import os
+import subprocess
+import time
+import re
 from pathlib import Path
+import plotly.express as px
+import plotly.graph_objects as go
 
 # --- Language Toggle ---
 LANGS = {"English": "en", "தமிழ்": "ta"}
@@ -151,12 +156,8 @@ model_names = [
 tabs = st.tabs([STRINGS[lang][name] for name in model_names])
 
 # --- Model Integration Example (Skeleton) ---
-import plotly.express as px
-import plotly.graph_objects as go
 
 def run_model(model_script, output_dir=None, output_pngs=None):
-    import subprocess
-    import time
     # Run the model script (assumes CLI interface)
     st.info(f"{STRINGS[lang]['run']} {model_script}...")
     subprocess.run(["python", f"Models/{model_script}"], capture_output=True, text=True)
@@ -253,8 +254,6 @@ with tabs[0]:
             "No predictions found for today.": "இன்றைக்கு முன்னறிவிப்புகள் இல்லை."
         }.get(s, s) if lang == 'ta' else s
     if st.button(f"{STRINGS[lang]['run']} {STRINGS[lang]['Daily Sales Prediction']}"):
-        import subprocess
-        import time
         st.info(f"{STRINGS[lang]['run']} dailySalesPrediction.py ...")
         subprocess.run(["python", "Models/dailySalesPrediction.py"], capture_output=True, text=True)
         time.sleep(1)
@@ -263,7 +262,6 @@ with tabs[0]:
             df = pd.read_csv(csv_path)
             # --- New logic: Identify date columns (actual dates) and prediction columns ---
             # Date columns: columns matching YYYY-MM-DD format
-            import re
             date_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}$")
             date_cols = [c for c in df.columns if date_pattern.match(str(c))]
             # Prediction columns: same as date columns (each date column is predicted sales for that date)
@@ -452,8 +450,6 @@ with tabs[1]:
         }.get(s, s) if lang == 'ta' else s
     num_days = st.number_input(t("Number of Days to Predict"), min_value=1, max_value=60, value=7, step=1)
     if st.button(f"{STRINGS[lang]['run']} {STRINGS[lang]['Expected Demand Predictor']}"):
-        import subprocess
-        import time
         st.info(f"{STRINGS[lang]['run']} expectedDemandPredictor.py for {num_days} days ...")
         subprocess.run(["python", "Models/expectedDemandPredictor.py", "--predict_days", str(num_days)], capture_output=True, text=True)
         time.sleep(1)
@@ -513,7 +509,6 @@ with tabs[1]:
                             f"Product: {bar_y.iloc[j]}<br>Predicted Total Sales: {bar_x.iloc[j]}<br>Number of Days: {num_days_col.iloc[j]}"
                             for j in range(len(cat_df))
                         ]
-                        import plotly.graph_objects as go
                         fig = go.Figure(go.Bar(
                             y=bar_y,
                             x=bar_x,
@@ -544,7 +539,6 @@ with tabs[1]:
                         f"Product: {bar_y.iloc[i]}<br>Predicted Total Sales: {bar_x.iloc[i]}<br>Number of Days: {num_days_col.iloc[i]}"
                         for i in range(len(df_sorted))
                     ]
-                    import plotly.graph_objects as go
                     fig = go.Figure(go.Bar(
                         y=bar_y,
                         x=bar_x,
@@ -587,8 +581,6 @@ with tabs[2]:
             "Required columns not found in output CSV. Showing first 3 rows.": "தேவையான பத்திகள் CSV-இல் இல்லை. முதல் 3 வரிசைகள் காட்டப்படுகின்றன."
         }.get(s, s) if lang == 'ta' else s
     if st.button(f"{STRINGS[lang]['run']} {STRINGS[lang]['Restock Predictor']}"):
-        import subprocess
-        import time
         st.info(f"{STRINGS[lang]['run']} restockPredictor.py ...")
         subprocess.run(["python", "Models/restockPredictor.py"], capture_output=True, text=True)
         time.sleep(1)
@@ -673,7 +665,6 @@ with tabs[2]:
                                     f"Product: {bar_y.iloc[j]}<br>Restock Qty: {bar_x.iloc[j]}<br>Category: {cat}"
                                     for j in range(len(cat_df))
                                 ]
-                                import plotly.graph_objects as go
                                 fig = go.Figure(go.Bar(
                                     y=bar_y,
                                     x=bar_x,
@@ -714,7 +705,6 @@ with tabs[2]:
                             f"Product: {bar_y.iloc[i]}<br>Restock Qty: {bar_x.iloc[i]}"
                             for i in range(len(df_sorted))
                         ]
-                        import plotly.graph_objects as go
                         fig = go.Figure(go.Bar(
                             y=bar_y,
                             x=bar_x,
@@ -765,8 +755,6 @@ with tabs[3]:
             "No valid categories found for visualization.": "காட்சிப்படுத்தலுக்கு செல்லுபடியாகும் வகைகள் இல்லை."
         }.get(s, s) if lang == 'ta' else s
     if st.button(f"{STRINGS[lang]['run']} {STRINGS[lang]['Price Optimization']}"):
-        import subprocess
-        import time
         st.info(f"{STRINGS[lang]['run']} priceOptimizationPrediction.py ...")
         subprocess.run(["python", "Models/priceOptimizationPrediction.py"], capture_output=True, text=True)
         time.sleep(1)
@@ -853,7 +841,6 @@ with tabs[3]:
                                     f"Product: {bar_y.iloc[j]}<br>Expected Revenue: {bar_x.iloc[j]}<br>Optimal Price: {price_x.iloc[j]}<br>Category: {cat}"
                                     for j in range(len(cat_df))
                                 ] if bar_x is not None and price_x is not None else None
-                                import plotly.graph_objects as go
                                 fig = go.Figure(go.Bar(
                                     y=bar_y,
                                     x=bar_x,
@@ -888,7 +875,6 @@ with tabs[3]:
                         f"Product: {bar_y.iloc[i]}<br>Expected Revenue: {bar_x.iloc[i]}<br>Optimal Price: {price_x.iloc[i]}"
                         for i in range(len(df_sorted))
                     ] if bar_x is not None and price_x is not None else None
-                    import plotly.graph_objects as go
                     fig = go.Figure(go.Bar(
                         y=bar_y,
                         x=bar_x,
@@ -917,8 +903,6 @@ with tabs[3]:
 with tabs[4]:
     st.header(STRINGS[lang]['Promotion Effectiveness'])
     if st.button(f"{STRINGS[lang]['run']} {STRINGS[lang]['Promotion Effectiveness']}"):
-        import subprocess
-        import time
         st.info(f"{STRINGS[lang]['run']} promotionEffectivenessModel.py ...")
         subprocess.run(["python", "Models/promotionEffectivenessModel.py"], capture_output=True, text=True)
         time.sleep(1)
@@ -1011,7 +995,6 @@ with tabs[4]:
                             st.markdown("**உயர்வு உள்ள பொருட்கள்**" if lang == 'ta' else "**Products with Positive Uplift**")
                             if not pos_df.empty:
                                 st.dataframe(pos_df[[c for c in [pname_col, uplift_col_name] if c in pos_df.columns]].sort_values(uplift_col_name, ascending=False))
-                                import plotly.graph_objects as go
                                 fig = go.Figure(go.Bar(
                                     x=pos_df[pname_col] if pname_col in pos_df.columns else pos_df[pid_col],
                                     y=pos_df[uplift_col_name],
@@ -1032,7 +1015,6 @@ with tabs[4]:
                             st.markdown("**உயர்வு இல்லாத அல்லது குறைந்த பொருட்கள்**" if lang == 'ta' else "**Products with Negative or Zero Uplift**")
                             if not neg_df.empty:
                                 st.dataframe(neg_df[[c for c in [pname_col, uplift_col_name] if c in neg_df.columns]].sort_values(uplift_col_name))
-                                import plotly.graph_objects as go
                                 fig = go.Figure(go.Bar(
                                     x=neg_df[pname_col] if pname_col in neg_df.columns else neg_df[pid_col],
                                     y=neg_df[uplift_col_name],
@@ -1077,8 +1059,6 @@ with tabs[4]:
 with tabs[5]:
     st.header(f"{STRINGS[lang]['Inventory Turnover']} ({STRINGS[lang]['ABC Analysis']})")
     if st.button(f"{STRINGS[lang]['run']} {STRINGS[lang]['Inventory Turnover']}"):
-        import subprocess
-        import time
         st.info(f"{STRINGS[lang]['run']} inventoryTurnoverModel.py & abcAnalysisModel.py ..." if lang == 'en' else f"{STRINGS[lang]['run']} inventoryTurnoverModel.py மற்றும் abcAnalysisModel.py ...")
         subprocess.run(["python", "Models/inventoryTurnoverModel.py"], capture_output=True, text=True)
         subprocess.run(["python", "Models/abcAnalysisModel.py"], capture_output=True, text=True)
@@ -1202,7 +1182,6 @@ with tabs[5]:
                         "ABC வகுப்பு" if lang == 'ta' else "ABC Class"
                     ] if c in class_df.columns]].sort_values(("சுழற்சி விகிதம்" if lang == 'ta' else "Turnover Ratio"), ascending=False))
                     # --- Bar chart for this class ---
-                    import plotly.graph_objects as go
                     if not class_df.empty:
                         # Color by ABC class if available, else by turnover class
                         abc_col_name = "ABC வகுப்பு" if lang == 'ta' else "ABC Class"
